@@ -10,6 +10,7 @@ to a single 'secure' channel in your Discord.
 
 REF
 https://discordpy.readthedocs.io/en/stable/api.html
+created using python3.7
 
 10/18/21
 """
