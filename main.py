@@ -43,8 +43,8 @@ async def on_message(message):
         return
     
     if message.content not in command_list and message.content.startswith("!"):
-    await message.channel.send(f"Command '{message.content}' not recognized.  Use '!help' to list options.  "
-                               f"Commands are all in lowercase.")
+        await message.channel.send(f"Command '{message.content}' not recognized.  Use '!help' to list options.  "
+                                   f"Commands are all in lowercase.", delete_after=6.0)
 
     if message.content == "!help":
         await message.channel.send("Commands:\n!help - (Brings up this list)\n!ip - (Show current server IP "
