@@ -29,10 +29,11 @@ TOKEN = "YOUR_DISCORD_BOT_TOKEN_GOES_HERE"
 
 client = discord.Client()
 
+command_list = ["!help", "!ip", "!pw", "!clear"]
 
 @client.event
 async def on_ready():
-    print("Valheim Discord Server Bot Ready!")
+    print("Valheim Discord Server Bot Running!")
 
 
 # "delete_after" is a float to delete the bot's message after a set amount of seconds.
@@ -40,6 +41,10 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
+    
+    if message.content not in command_list and message.content.startswith("!"):
+        await message.channel.send(f"Command '{message.content}' not recognized.  Use '!help' to list options.  "
+                                   f"Commands are all in lowercase.", delete_after=6.0)
 
     if message.content == "!help":
         await message.channel.send("Commands:\n!help - (Brings up this list)\n!ip - (Show current server IP "
