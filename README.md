@@ -1,5 +1,5 @@
 # Valheim-DynamicIP-Server-Discord-Bot
-A discord bot that can provide Dynamic IP address information to authorized users for a Valheim locally hosted dedicated server.
+A discord bot that can provide Dynamic IP address information to authorized users in order to Direct Connect to your Valheim locally hosted dedicated server.
 
 
 **I'm not great with batch files, so this may not perfect or completely correct.  Use at your own discretion.**
