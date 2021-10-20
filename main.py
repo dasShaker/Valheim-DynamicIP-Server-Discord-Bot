@@ -21,7 +21,7 @@ import socket
 
 # Dynamic IP server Information for Direct Connect option in the Valheim Game Client
 my_hostname = "YOUR_HOST_NAME"  # Dynamic IP address hostname, get from sites such as www.noip.com (Not affiliated)
-my_port = 2457  # Valheim ports use 2456 to 2458, pick one.
+my_port = 2457  # Valheim ports use 2456 to 2458, pick one.  It should match what your dedicated server is set to.
 my_server_password = "YOUR_SERVER_PASSWORD"
 
 # Discord Bot Token *** KEEP THIS SECRET! ***
