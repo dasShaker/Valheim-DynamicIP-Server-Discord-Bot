@@ -1,65 +1,78 @@
 """
-A simple Discord Bot that allows you to provide your locally hosted server's direct connect information for your players.
-This script is for a locally hosted dedicated Valheim server only.
+A simple Discord Bot that allows you to provide your locally hosted server's direct connect information to your players.
 
-This does not set bot permissions in Discord!  Discord admins should create a text channel for authorized players
-to be able to see if they have the specific role for it only.  You are responsible for your own security.
-
-Discord bot permissions should include read and manage messages for this script to work.  I recommend limiting this bot 
-to a single 'secure' channel in your Discord.
+The Direct Connect Information is pulled from a Dynamic IP Address provider such as www.noip.com.  If you pay for a
+dedicated server hosted in the cloud, this script is not for you.
+This bot should be limited to a single text channel, and locked behind role access given only to players on your server.
+You must create a .env file to hold your Discord Bot Token and place it in the same folder where you save this script.
+I may do another version later where this can be turned into a cog and incorporated into an overlord bot.
+Commands will log actions taken by users to the terminal, but are currently not saved on disk.  Logs lost when bot goes
+offline.
 
 REF
 https://discordpy.readthedocs.io/en/stable/api.html
-created using python3.7
-
-10/18/21
+I have no affiliation with www.noip.com.  It's just the only one I'm familiar with.
+Created using Python 3.9
+dasShaker Nov 2, 2021
 """
 
-
-import discord
 import socket
+import os
+import datetime
+from discord.ext import commands
+from dotenv import load_dotenv
 
-# Dynamic IP server Information for Direct Connect option in the Valheim Game Client
-my_hostname = "YOUR_HOST_NAME"  # Dynamic IP address hostname, get from sites such as www.noip.com (Not affiliated)
-my_port = 2457  # Valheim ports use 2456 to 2458, pick one.  It should match what your dedicated server is set to.
-my_server_password = "YOUR_SERVER_PASSWORD"
+# Create the Bot and load the token from your .env file.
+"""
+Paste your bot token into a .env file as follows:
+                   TOKEN = 'your_token_here'
+"""
+bot = commands.Bot(command_prefix="!")
+load_dotenv()
+TOKEN = os.getenv('TOKEN')
 
-# Discord Bot Token *** KEEP THIS SECRET! ***
-TOKEN = "YOUR_DISCORD_BOT_TOKEN_GOES_HERE"
+# Dynamic IP Server Information
+"""
+Sign up for a free dynamic IP host name from a website like www.noip.com or similar.
+"""
+my_host_name = "YOUR_HOSTNAME_HERE"  # Place the host name between quotes
+my_server_port = 2456  # Should match your server_start .bat file.
+my_server_password = "YOUR_PASSWORD"  # Place the password between quotes. Should match your server_start .bat file. Case sensitive.
 
-client = discord.Client()
+# Discord Text Channel Options
+"""
+Right-click the channel the bot will work in, Copy ID, and paste the number here <without quotes>.
+Set the bot's channel connect message.
+"""                  
+bot_text_channelID = 123456789012345678
+bot_text_channel_info_message = "Odin's messenger is online.\n -- '!info' for server information.\n -- " \
+                                   "'!clear' to clean up the channel. "
 
-command_list = ["!help", "!ip", "!pw", "!clear"]
 
-@client.event
+@bot.event
 async def on_ready():
-    print("Valheim Discord Server Bot Running!")
+    print("Valheim Discord Server Bot Running")
+    channel = bot.get_channel(bot_text_channelID)
+    print("Connected to channel " + str(channel))
+    print(f'{datetime.datetime.now().strftime("%Y-%m-%d %H:%M")} - Connection established.')
+    await channel.send(bot_text_channel_info_message)
 
 
-# "delete_after" is a float to delete the bot's message after a set amount of seconds.
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-    
-    if message.content not in command_list and message.content.startswith("!"):
-        await message.channel.send(f"Command '{message.content}' not recognized.  Use '!help' to list options.  "
-                                   f"Commands are all in lowercase.", delete_after=6.0)
+@bot.command()
+async def info(ctx):
+    print(f'{datetime.datetime.now().strftime("%Y-%m-%d %H:%M")} - {ctx.author} ({ctx.author.display_name}) '
+          f'requested server info.')
+    ip = socket.gethostbyname(my_host_name)
+    await ctx.send(str(ip) + ":" + str(my_server_port) + "\n" + "PW: " + my_server_password, delete_after=10.0)
 
-    if message.content == "!help":
-        await message.channel.send("Commands:\n!help - (Brings up this list)\n!ip - (Show current server IP "
-                                   "address)\n!pw - (Show current server Password)\n!clear - (Clears the channel of "
-                                   "all messages)", delete_after=6.0)
 
-    if message.content == "!ip":
-        ip = socket.gethostbyname(my_hostname)
-        await message.channel.send(str(ip) + ":" + str(my_port), delete_after=6.0)
+@bot.command()
+async def clear(ctx):
+    print(f'{datetime.datetime.now().strftime("%Y-%m-%d %H:%M")} - {ctx.author} ({ctx.author.display_name}) cleared '
+          f'the channel.')
+    await ctx.channel.purge()
+    await ctx.channel.send(bot_text_channel_info_message)
 
-    if message.content == "!pw":
-        await message.channel.send(my_server_password, delete_after=6.0)
-
-    if message.content == "!clear":
-        await message.channel.purge()
 
 if __name__ == "__main__":
-    client.run(TOKEN)
+  bot.run(TOKEN)
