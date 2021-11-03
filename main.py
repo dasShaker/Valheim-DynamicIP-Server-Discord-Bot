@@ -1,19 +1,24 @@
 """
-A simple Discord Bot that allows you to provide your locally hosted server's direct connect information for your players.
-The Direct Connect Information is pulled from a Dynamic IP Address provider such as www.noip.com.  If you pay for a dedicated
-server hosted in the cloud, you don't need this script.
+A simple Discord Bot that allows you to provide your locally hosted server's direct connect information to your players.
+
+The Direct Connect Information is pulled from a Dynamic IP Address provider such as www.noip.com.  If you pay for a
+dedicated server hosted in the cloud, this script is not for you.
 This bot should be limited to a single text channel, and locked behind role access given only to players on your server.
 You must create a .env file to hold your Discord Bot Token and place it in the same folder where you save this script.
 I may do another version later where this can be turned into a cog and incorporated into an overlord bot.
+Commands will log actions taken by users to the terminal, but are currently not saved on disk.  Logs lost when bot goes
+offline.
+
 REF
 https://discordpy.readthedocs.io/en/stable/api.html
 I have no affiliation with www.noip.com.  It's just the only one I'm familiar with.
-Created using python3.7
-dasShaker Oct 21, 2021
+Created using Python 3.9
+dasShaker Nov 2, 2021
 """
 
 import socket
 import os
+import datetime
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -49,17 +54,22 @@ async def on_ready():
     print("Valheim Discord Server Bot Running")
     channel = bot.get_channel(bot_text_channelID)
     print("Connected to channel " + str(channel))
+    print(f'{datetime.datetime.now().strftime("%Y-%m-%d %H:%M")} - Connection established.')
     await channel.send(bot_text_channel_info_message)
 
 
 @bot.command()
 async def info(ctx):
+    print(f'{datetime.datetime.now().strftime("%Y-%m-%d %H:%M")} - {ctx.author} ({ctx.author.display_name}) '
+          f'requested server info.')
     ip = socket.gethostbyname(my_host_name)
     await ctx.send(str(ip) + ":" + str(my_server_port) + "\n" + "PW: " + my_server_password, delete_after=10.0)
 
 
 @bot.command()
 async def clear(ctx):
+    print(f'{datetime.datetime.now().strftime("%Y-%m-%d %H:%M")} - {ctx.author} ({ctx.author.display_name}) cleared '
+          f'the channel.')
     await ctx.channel.purge()
     await ctx.channel.send(bot_text_channel_info_message)
 
